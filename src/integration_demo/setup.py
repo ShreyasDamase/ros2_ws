@@ -11,6 +11,8 @@ setup(
          ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/launch', ['launch/integration_launch.py']),
+        ('share/' + package_name + '/config', ['config/velocity_params.yml']),
+
     ],
     package_data={'': ['py.typed']},
     install_requires=['setuptools'],
@@ -27,6 +29,7 @@ setup(
     entry_points={
         'console_scripts': [
             'velocity_publisher = integration_demo.velocity_publisher:main',
+            'velocity_subscriber = integration_demo.velocity_subscriber:main'
         ],
     },
 )

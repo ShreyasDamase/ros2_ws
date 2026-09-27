@@ -1,0 +1,7 @@
+/robot1/velocity_publisher_node: #node name
+  ros__parameters: #parameters belonging to that node
+    robot_speed: 4.0 #parameter + its value
+
+/robot2/velocity_publisher_node:
+  ros__parameters:
+    robot_speed: 3.0

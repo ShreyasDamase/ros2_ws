@@ -21,6 +21,10 @@ class VelocityPublisher(Node):
                     self.get_logger().error('robot speed can not be set negative or more than 10.0')
                     return SetParametersResult(successful=False)
                 else:
+                    self.robot_speed = param.value
+                    self.get_logger().info(
+                        f'Robot speed updated to: {self.robot_speed}'
+                    )
                     return SetParametersResult(successful=True)
         self.get_logger().error('Invalid argument please enter correct robot speed ')
         return SetParametersResult(successful=False)
@@ -30,7 +34,7 @@ class VelocityPublisher(Node):
         if self.robot_speed is not None:
             msg.data = float(self.robot_speed)
         else:
-            self.get_logger().warn('robot speed is none')
+            self.get_logger().warning('robot speed is none')
             return
         self.publisher_.publish(msg)
         self.get_logger().info(
