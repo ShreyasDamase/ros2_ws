@@ -1,0 +1,9 @@
+float32 target_speed
+bool gradual
+---
+bool success
+float32 applied_speed
+string message
+---
+float32 current_speed
+float32 progress
