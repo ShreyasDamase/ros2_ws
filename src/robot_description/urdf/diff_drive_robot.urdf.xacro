@@ -1,0 +1,323 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="diff_drive_robot">
+
+    <!-- ==================== PARAMETERS ==================== -->
+
+    <!-- Coordinate system:
+         +X = FRONT
+         -X = REAR
+         +Y = LEFT
+         -Y = RIGHT
+         +Z = UP
+    -->
+
+    <!-- Dimensions -->
+    <xacro:property name="base_link_length" value="0.4"/>
+    <xacro:property name="base_link_breadth" value="0.2"/>
+    <xacro:property name="base_link_height" value="0.1"/>
+    <xacro:property name="wheel_radius" value="0.05"/>
+    <xacro:property name="wheel_width" value="0.04"/>
+    <xacro:property name="caster_radius" value="0.03"/>
+
+    <!-- Mass -->
+    <xacro:property name="base_link_mass" value="0.2"/>
+    <xacro:property name="wheel_mass" value="0.2"/>
+    <xacro:property name="caster_wheel_mass" value="0.1"/>
+
+    <!-- Wheel offsets -->
+    <xacro:property name="wheel_y_offset" value="0.12"/>
+    <xacro:property name="wheel_z_offset" value="0.03"/>
+    <xacro:property name="wheel_roll" value="1.5708"/>
+
+    <!-- Caster offsets -->
+    <xacro:property name="caster_x_offset" value="0.15"/>
+    <xacro:property name="caster_z_offset" value="0.049"/>
+
+
+    <!-- ==================== INERTIA MACROS ==================== -->
+
+    <!-- Box -->
+    <xacro:macro name="box_inertia" params="mass length width height">
+        <inertia
+                ixx="${mass/12.0 * (width*width + height*height)}"
+                ixy="0" ixz="0"
+                iyy="${mass/12.0 * (length*length + height*height)}"
+                iyz="0"
+                izz="${mass/12.0 * (length*length + width*width)}"/>
+    </xacro:macro>
+
+    <!-- Cylinder -->
+    <xacro:macro name="cylinder_inertia" params="mass radius length">
+        <inertia
+                ixx="${mass/12.0 * (3.0*radius*radius + length*length)}"
+                ixy="0" ixz="0"
+                iyy="${mass/12.0 * (3.0*radius*radius + length*length)}"
+                iyz="0"
+                izz="${mass/2.0 * radius*radius}"/>
+    </xacro:macro>
+
+    <!-- Sphere -->
+    <xacro:macro name="sphere_inertia" params="mass radius">
+        <inertia
+                ixx="${2.0/5.0 * mass * radius*radius}"
+                ixy="0" ixz="0"
+                iyy="${2.0/5.0 * mass * radius*radius}"
+                iyz="0"
+                izz="${2.0/5.0 * mass * radius*radius}"/>
+    </xacro:macro>
+
+
+    <!-- ==================== MATERIALS ==================== -->
+
+    <material name="red">
+        <color rgba="0.9 0.1 0.1 1"/>
+    </material>
+
+    <material name="yellow">
+        <color rgba="0.95 0.85 0.1 1"/>
+    </material>
+
+    <material name="blue">
+        <color rgba="0.1 0.1 0.8 1"/>
+    </material>
+
+    <material name="black">
+        <color rgba="0 0 0 1"/>
+    </material>
+
+    <material name="white">
+        <color rgba="1 1 1 1"/>
+    </material>
+    <!-- ==================== BASE ==================== -->
+
+    <link name="base_link">
+
+        <visual>
+            <geometry>
+                <box size="${base_link_length} ${base_link_breadth} ${base_link_height}"/>
+            </geometry>
+            <material name="red"/>
+        </visual>
+
+        <collision>
+            <geometry>
+                <box size="${base_link_length} ${base_link_breadth} ${base_link_height}"/>
+            </geometry>
+        </collision>
+
+        <inertial>
+            <mass value="${base_link_mass}"/>
+
+            <xacro:box_inertia
+                    mass="${base_link_mass}"
+                    length="${base_link_length}"
+                    width="${base_link_breadth}"
+                    height="${base_link_height}"/>
+        </inertial>
+
+    </link>
+
+
+    <!-- ==================== WHEEL MACRO ==================== -->
+
+    <xacro:macro name="wheel" params="name y_offset roll">
+
+        <link name="${name}">
+
+            <visual>
+                <geometry>
+                    <cylinder
+                            radius="${wheel_radius}"
+                            length="${wheel_width}"/>
+                </geometry>
+                <material name="yellow"/>
+            </visual>
+
+            <collision>
+                <geometry>
+                    <cylinder
+                            radius="${wheel_radius}"
+                            length="${wheel_width}"/>
+                </geometry>
+            </collision>
+
+            <inertial>
+                <mass value="${wheel_mass}"/>
+
+                <xacro:cylinder_inertia
+                        mass="${wheel_mass}"
+                        radius="${wheel_radius}"
+                        length="${wheel_width}"/>
+            </inertial>
+
+        </link>
+
+        <joint name="${name}_joint" type="continuous">
+            <parent link="base_link"/>
+            <child link="${name}"/>
+
+            <!-- +Y = LEFT, -Y = RIGHT -->
+            <origin
+                    xyz="0 ${y_offset} -${wheel_z_offset}"
+                    rpy="${roll} 0 0"/>
+
+            <axis xyz="0 0 1"/>
+        </joint>
+
+    </xacro:macro>
+
+
+    <!-- LEFT WHEEL = +Y -->
+    <xacro:wheel
+            name="left_wheel"
+            y_offset="${wheel_y_offset}"
+            roll="-${wheel_roll}"/>
+
+    <!-- RIGHT WHEEL = -Y -->
+    <xacro:wheel
+            name="right_wheel"
+            y_offset="-${wheel_y_offset}"
+            roll="-${wheel_roll}"/>
+
+
+    <!-- ==================== CASTER ==================== -->
+
+    <xacro:macro name="caster" params="name x_offset">
+
+        <link name="${name}">
+
+            <visual>
+                <geometry>
+                    <sphere radius="${caster_radius}"/>
+                </geometry>
+                <material name="blue"/>
+            </visual>
+
+            <collision>
+                <geometry>
+                    <sphere radius="${caster_radius}"/>
+                </geometry>
+            </collision>
+
+            <inertial>
+                <mass value="${caster_wheel_mass}"/>
+
+                <xacro:sphere_inertia
+                        mass="${caster_wheel_mass}"
+                        radius="${caster_radius}"/>
+            </inertial>
+
+        </link>
+
+        <joint name="${name}_joint" type="fixed">
+            <parent link="base_link"/>
+            <child link="${name}"/>
+
+            <!-- +X = FRONT, -X = REAR -->
+            <origin
+                    xyz="${x_offset} 0 -${caster_z_offset}"
+                    rpy="0 0 0"/>
+        </joint>
+
+    </xacro:macro>
+
+
+    <!-- FRONT CASTER = +X -->
+    <xacro:caster
+            name="front_caster"
+            x_offset="${caster_x_offset}"/>
+
+    <!-- REAR CASTER = -X -->
+    <xacro:caster
+            name="rear_caster"
+            x_offset="-${caster_x_offset}"/>
+
+
+    <!-- ==================== LIDAR ==================== -->
+
+    <link name="lidar_link">
+
+        <visual>
+            <geometry>
+                <cylinder length="0.05" radius="0.05"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+
+    </link>
+
+    <joint name="lidar_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="lidar_link"/>
+
+        <!-- UNCHANGED -->
+        <origin xyz="0.0 0.0 0.07"/>
+
+    </joint>
+
+    <!-- ==================== CAMETA ==================== -->
+    <link name="camera_link">
+        <visual>
+            <geometry>
+                <box size="0.05 0.05 0.02"/>
+            </geometry>
+            <material name="white"/>
+        </visual>
+    </link>
+    <joint name="camera_optical_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="camera_link"/>
+        <origin xyz="0.175 0 0.06" rpy="0 0 0"/>
+    </joint>
+    <!-- ==================== GAZEBO ==================== -->
+
+    <gazebo reference="left_wheel">
+        <mu1>1.0</mu1>
+        <mu2>1.0</mu2>
+    </gazebo>
+
+    <gazebo reference="right_wheel">
+        <mu1>1.0</mu1>
+        <mu2>1.0</mu2>
+    </gazebo>
+
+    <gazebo reference="front_caster">
+        <mu1>0.0</mu1>
+        <mu2>0.0</mu2>
+    </gazebo>
+
+    <gazebo reference="rear_caster">
+        <mu1>0.0</mu1>
+        <mu2>0.0</mu2>
+    </gazebo>
+
+
+    <!-- ==================== DIFF DRIVE ==================== -->
+
+    <gazebo>
+
+        <plugin
+                filename="gz-sim-diff-drive-system"
+                name="gz::sim::systems::DiffDrive">
+
+            <left_joint>left_wheel_joint</left_joint>
+            <right_joint>right_wheel_joint</right_joint>
+
+            <wheel_separation>${2.0 * wheel_y_offset}</wheel_separation>
+            <wheel_radius>${wheel_radius}</wheel_radius>
+
+            <topic>cmd_vel</topic>
+            <odom_publish_frequency>30</odom_publish_frequency>
+
+            <frame_id>odom</frame_id>
+            <child_frame_id>base_link</child_frame_id>
+
+        </plugin>
+
+        <plugin
+                filename="gz-sim-joint-state-publisher-system"
+                name="gz::sim::systems::JointStatePublisher"/>
+
+    </gazebo>
+
+</robot>

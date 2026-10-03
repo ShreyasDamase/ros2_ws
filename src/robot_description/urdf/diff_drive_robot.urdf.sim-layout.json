@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "sourceFile": "diff_drive_robot.urdf",
+  "layout": {
+    "base_link": {
+      "x": 60.0,
+      "y": 200.0,
+      "rotation": 0,
+      "flipH": false
+    },
+    "left_wheel": {
+      "x": 600.0,
+      "y": 80.0,
+      "rotation": 0,
+      "flipH": false
+    },
+    "right_wheel": {
+      "x": 600.0,
+      "y": 200.0,
+      "rotation": 0,
+      "flipH": false
+    },
+    "caster": {
+      "x": 600.0,
+      "y": 320.0,
+      "rotation": 0,
+      "flipH": false
+    },
+    "left_wheel_joint": {
+      "x": 340.0,
+      "y": 60.0,
+      "rotation": 0,
+      "flipH": false
+    },
+    "right_wheel_joint": {
+      "x": 340.0,
+      "y": 200.0,
+      "rotation": 0,
+      "flipH": false
+    },
+    "caster_joint": {
+      "x": 340.0,
+      "y": 340.0,
+      "rotation": 0,
+      "flipH": false
+    }
+  },
+  "annotations": [],
+  "analysisPoints": [],
+  "loggedSignals": []
+}
